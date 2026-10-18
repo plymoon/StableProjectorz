@@ -36,7 +36,7 @@ render the mesh from the content camera (Cull Back), per fragment:
 
 * The threshold is **0.95, not 0.99**: "we want to apply the mask even if visibility is, say, 98 % - helpful around borders where we might have fading. 0.99 picks up minor brush imprecisions even though a projection might look fully opaque."
 * The accumulated alpha already includes view fading, brush hiding and visibility, so the generator is asked to fill **exactly what the current layers do not cover** from this viewpoint.
-* Generator conditioning in SPZ: the content image (render of the current textured/clay model) goes in as init image; the mask selects the empty parts. The result is projected back **only inside the mask** (hard-thresholded, `01` §1.3). So the new region copies the palette/lighting from already-textured neighbours.
+* Generator conditioning in SPZ (`F/StableDiffusion/Input Panel/SD_Generate_PayloadMaker.cs:124-125`): the **content camera render of the current state** (`usualView`) is the init image, and the **`skipAntiEdge` mask** is sent as the mask, with the code comment "send the SKIP-anti-edge. Avoids revealing any black untextured areas to SD" (the generator must not see the unpainted black background through gaps at the mask border). The result is projected back **only inside the mask** (hard-thresholded, `01` §1.3). So the new region copies the palette/lighting from already-textured neighbours.
 
 `IDEA/ALGO` for Overcast (Stage 3): implement `coverage_mask(view)` = `rasterise(mesh, view) → look up accum alpha via the UV map → threshold 0.95 → screen mask`. Use it for:
 (a) the **second and later tiles** of a sequential plan: generate only the uncovered part, with the partially textured render as the init/context image (palette continuity);

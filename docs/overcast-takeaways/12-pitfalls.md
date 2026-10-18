@@ -8,7 +8,7 @@ Legend: **[B]** bug or inconsistency in code; **[L]** hard limitation; **[U]** u
 
 | # | Item | Evidence | Lesson for Overcast |
 |---|---|---|---|
-| 1 | **[U] No undo/redo** for strokes, fills, mask inversion, flatten, layer deletion. | no undo code under `F/Paint`, `F/Camera`, `F/StableDiffusion`; comment in `Inpaint_MaskPainter.ApplyColorLayer_To_UV_Textures`: "Never blit colors if saving. Or merging icons into one, because no ctrl+z." | Stroke-command undo with bounded patch history (`04` §3). |
+| 1 | **[U] No undo/redo** for strokes, fills, mask inversion, flatten, layer deletion, mesh removal or import. The UI warns "There is no CTRL+Z yet." in at least 8 confirmation texts (`F/Icons/IconUI_List_Art/IconsUI_List.cs:206,230,246`, `Art2D_IconsUI_List.cs:77`, `F/3D Models/UI/SD_subMesh_IconUI.cs:68`, `ModelsHandler_3D_UI.cs:43,121`). | no undo code under `F/Paint`, `F/Camera`, `F/StableDiffusion`; comment in `Inpaint_MaskPainter.ApplyColorLayer_To_UV_Textures`: "Never blit colors if saving. Or merging icons into one, because no ctrl+z." | Stroke-command undo with bounded patch history (`04` §3). |
 | 2 | **[U] Layer reordering is disabled** ("NOT USED NOVEMBER 2024. Preventing movement of icons, because Save/Load gets broken."), so draw order is creation order. | `F/Icons/IconUI_List_Art/Art2D_IconsUI_List.cs ChangePriority_IconGroup_maybe` | Key layers by stable ids, store order separately. |
 | 3 | **[U] Saving deletes everything inside `<project>_Data`** before writing, non-atomically; project save is refused during generation. | `ProjectSaveLoad_Helper.CreateDataDir` | Write to a temp dir and swap; never delete user files. |
 | 4 | **[U] Changing "brush UV precision" in settings deletes all art icons** (a confirm popup warns, but all generations are disposed). | `F/Settings/Settings_MGR.cs set_brushPrecision_res → GenData2D_Archive.Dispose_ALL_genData()` | Make mask resolution a per-layer property, resample on change. |
@@ -32,6 +32,7 @@ Legend: **[B]** bug or inconsistency in code; **[L]** hard limitation; **[U]** u
 | 17 | **[L] 8-bit masks and visibility** (`R8`, `R8G8`), with the mask value range halved by the [0,2] encoding; also stored as 8-bit PNG. Soft strokes may band; accumulation of many small edits quantises. | `GenData_Masks` formats | 16-bit masks. |
 | 18 | **[M] No dirty rectangles**: full-array compute per stroke frame and full re-composite per change; memory grows with `#generations × #views × #UDIMs` (a single 2048² generation with 6 views holds about 6 × (1 + 2) bytes × 4.2 M texels ≈ 75 MB of mask/visibility per UDIM, 4× that at the 4096 option). | `GenData_Masks`, `ApplyBrushStroke_ToUvMask` | Tile and cache; store masks sparsely. |
 | 19 | **[B] Inconsistent "same" thresholds scattered as literals**: 0.01 (dilation), 0.1 (border detect), 0.95 (coverage), 0.3/0.15 (angle ramp), 0.2/0.5 (brush normal fade), 0.15 units (mask blur depth limit); no shared constants. | various | Centralise tunables with names and units. |
+| 19b | **[U] Overlapping or mirrored UVs silently break results** and are only mentioned in launch-screen hints ("Black 3d models? Ensure UVs are non-overlapping", "Symmetry? Arrange 2 halves into UDIMs"); no import-time validation. | `LoadIntroScreen_Hints.cs` | UV validation on import (`03`). |
 
 ## 3. Input, platform and architecture
 

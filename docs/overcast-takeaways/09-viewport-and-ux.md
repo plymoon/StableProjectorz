@@ -22,6 +22,7 @@ Order-of-projections view (`MainViewport_UI.ShowOrderOfProjections_maybe`, `Proj
 
 ## 2. UX patterns that are well solved (and cheap to copy)
 
+* **Layout and modes**: one central viewport; a left column with the workflow tools (mode ribbon: projection masking / inpaint with colour / inpaint without colour / total object / where empty, plus generate buttons) and a right column with tabbed panels (art list, background list, mesh list, control inputs). A three-way **dimension mode** (`DimensionMode_MGR`: `dim_uv` texture-coordinate inspection, `dim_sd` texturing, `dim_gen_3d` image-to-3D) fades the panels that do not apply and gates navigation and brushing (e.g. no pin dragging in UV mode, painting only in `dim_sd`). The panels are separate Unity scenes loaded additively and positioned onto a shared "skeleton" (`Layouts/Skeleton/Global_Skeleton_UI.cs`), a repo-hygiene trick against merge conflicts, not a UX idea. A settings option can keep the viewport centred between the panels.
 * **Everything has a hotkey and a visible hover cue**; modifiers are consistent: `Ctrl`/`Shift` for "bigger" variants (fill, delete), `Alt` for navigation, `Q` visibility, `X` flip add/subtract, `H` hardness, `[ ]` size, number keys opacity, `F` focus, `A/D` previous/next layer (also restores that layer's camera), `Shift+1…4` switch right-panel tabs (art list / backgrounds / mesh / controlnet; plain `1…0` are brush opacity).
 * **Hover-gated keys** (most brush keys act only while the cursor is over the viewport) and a global "is an input field focused" guard (`KeyMousePenInput.isSomeInputFieldActive`) so typing a prompt never triggers tools. Unify this guard in a single hotkey registry in React.
 * **Right-mouse picker at cursor** (`Space` or RMB release opens the colour wheel centred on the cursor, `F/MouseWorkbench/`) keeps the pointer where the work is.
@@ -34,6 +35,26 @@ Order-of-projections view (`MainViewport_UI.ShowOrderOfProjections_maybe`, `Proj
 * **Tablet pen** is a first-class input: pressure to size/opacity, with a status message when a tablet is detected.
 * **Frame-rate hygiene**: target 70 fps, 2 fps when the window is unfocused (`Settings_MGR`), reduced resolution and optional FPS throttle while the generator runs (`Performance_MGR`: texture resolution is dropped to 256 while generating and restored afterwards, except in the final preparation frames before a request so that low-res images are never sent as control inputs). Relevant when Qwen and the renderer share one GPU.
 * **Settings that wipe data** (see `12`) are the counter-example.
+
+### 2.1 Workflow lore hidden in the splash hints
+
+`LoadIntroScreen_Hints.cs` holds ~40 one-line tips, one shown per launch. Read as requirements, they document workflows and limits SPZ users run into:
+
+| Hint (shortened) | Implied feature / limit | Overcast reading |
+|---|---|---|
+| "The 'No-Color brush' is perfect for re-thinking any seams." | seams are fixed by painting a colourless mask over them and regenerating | seam-fix = region mask on seam + regenerate (`06`) |
+| "'Where Empty' allows to inpaint roughly over the gaps." | coverage-driven fill | planner loop (`07` §5) |
+| "Any Background Image secretly activates a full-object inpaint." | hidden mode coupling | avoid hidden couplings |
+| "Increase cameras, render, then Blend them (using the +brush)." | multi-view sheet then manual blending | sheet + weights + editing (`01`, `02`, `05`) |
+| "Use FAR and SFT slider inside an icon to remove borders." | per-layer edge-fade (`edgeBlurStride`) and softness (`edgeBlurPow`) | expose the two parameters as "edge fade width" and "blend sharpness" |
+| "512 x 512 size is per projection, so final output is at least 2k res." | the texture resolution is decoupled from the generation size | same for tiles |
+| "SDXL was made to render 1024 images, smaller sizes give weird results." | generator-native sizes matter | tile sizes 1024-2048 for Qwen, as planned |
+| "Higher resolutions work well for Multi-camera setup." | sheets need a larger canvas | size the sheet to the number of views |
+| "Getting wireframe from SDXL? Blur the depth." | artefact fix via depth blur | optional depth blur parameter (`07` §3.1) |
+| "Press CTRL while orbiting: snaps to nearest 45 degrees." / "Shift+W toggles the wireframe." / "Right click any slider to restore to a default value." / "CTRL + hover an icon to find it on your geometry." | navigation and discoverability | cheap UX wins |
+| "Saving? DATA folder always stores a final 4k texture just in case." | recovery composite | `08` |
+
+Note that one hint is stale: "hold 'R' to see the current projection in Red" while the code now draws a greyscale order view (`MainViewport_UI.ShowOrderOfProjections_maybe`). Hints that drift from behaviour are a docs-maintenance trap; generate help text from the hotkey registry.
 
 ## 3. HDRI from a chrome ball (viewport lighting idea)
 

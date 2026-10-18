@@ -12,6 +12,8 @@ Paths: `F/` = `Assets/_gm/Features/`, `C/` = `Assets/_gm/_Core/`. Reuse marks as
   drives dilation (`02`), brush gutter handling (`05`), and the "what is covered" test. Overcast already has a UV coverage notion; the useful point is to keep it
   **separate from colour alpha** and at a stable resolution.
 
+* **UV requirements are pushed onto the user as splash-screen hints** (`F/Intro Panels/Intro Splashscreen UI/LoadIntroScreen_Hints.cs`): "Black 3d models? Ensure UVs are non-overlapping."; "Symmetry? Arrange 2 halves into UDIMs, to avoid visual glitches"; "2+ materials? Arrange into UDIMs to make several textures."; "Projections leaking through thin surfaces? Settings -> Precision x4". So overlapping/mirrored UVs (one texel shared by two surfaces) silently corrupt results, and SPZ **does not detect or report** them. `IDEA`, effort S-M, high value: an Overcast **UV validation step on import** (overlap area by rasterising triangle ids into a UV buffer and counting texels hit by more than one triangle with different 3D positions; flipped/zero-area triangles; coordinates outside the expected range; islands too close for the chosen padding) that reports before projecting.
+
 ## 2. UDIM support (worth checking our edge cases against)
 
 Files: `F/TextureTools/UDIMs/UDIMs_Helper.cs`, `RenderUdims.cs`, `C/Shader_Includes/UDIM_AutoDefines.cginc`, `TextureArrays_AutoDefines.cginc`.

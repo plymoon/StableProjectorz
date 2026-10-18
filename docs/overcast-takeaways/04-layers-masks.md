@@ -80,7 +80,7 @@ texels, with an order array and separate "additive vs overlay" weights. A search
 
 ## 3. History / undo
 
-* **There is no undo/redo** for brush strokes, bucket fills, mask inversion, layer deletion or flattening. Grep for `Undo`/`undo` in `F/Paint`, `F/Camera`, `F/StableDiffusion`, `F/Save Load Import Export`
+* **There is no undo/redo**, and the app says so itself: confirmation texts read "There is no CTRL+Z yet." (`F/3D Models/UI/SD_subMesh_IconUI.cs:68`, `ModelsHandler_3D_UI.cs:43,121`), "Careful, there is no CTRL+Z!" (`F/Icons/IconUI_List_Art/IconsUI_List.cs:206,230,246`, `Art2D_IconsUI_List.cs:77`). This applies to brush strokes, bucket fills, mask inversion, layer deletion or flattening. Grep for `Undo`/`undo` in `F/Paint`, `F/Camera`, `F/StableDiffusion`, `F/Save Load Import Export`
   finds only a comment about eroding after dilating and an unrelated animation-restore comment. `ProjectorCamera.OnIcon_Some_Blending_Slider` etc. just recompute.
 * What *does* exist as history: every **generation is kept** (archive of `GenData2D`) with its request, camera and context images, and **clone** exists. the inpaint UI has a "ReDo" control (`F/Paint/Inpaint/UI/ReDo holder (scaled) - PIVOT AT BOTTOM.prefab`) which, judging by its name and context, re-runs the generation rather than reverting edits (not verified in code).
 * Strokes are applied progressively to the mask during dragging (diff of current vs previous stroke buffers) and cannot be reverted.
