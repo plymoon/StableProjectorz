@@ -66,7 +66,7 @@ Pipeline in `F/Paint/Inpaint/Inpaint_ScreenMasker_Original.cs` (`RenderScreenMas
 | Step | numpy/OpenCV |
 |---|---|
 | render view mask from UV layer / coverage | via UV→screen map (`01` §1.1) |
-| depth edges | `|d − d_neigh|max over 3×3 > t`, t ≈ lerp(0.005, 0.1, sensitivity) on min/max-normalised depth, background neighbour = 1 |
+| depth edges | `max over 3×3 of abs(d − d_neigh) > t`, t ≈ lerp(0.005, 0.1, sensitivity) on min/max-normalised depth, background neighbour = 1 |
 | blur not crossing depth jumps | **joint/bilateral blur** guided by depth (`cv2.ximgproc.jointBilateralFilter`, or a blur masked by `abs(d_i − d_j) < 0.15·model_size/…`) |
 | anti-edge | multiply by `1 − blurred_edges` |
 | out-set vs in-set | `mask_send = dilate(mask, 1)`, `mask_project = erode(mask, 1)` |

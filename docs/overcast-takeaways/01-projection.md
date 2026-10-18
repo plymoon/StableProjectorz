@@ -154,7 +154,7 @@ so the views appear side by side in one sheet (`F/Camera/UserCameras_MGR.cs:308-
 
 `IDEA` for Overcast's context sheet: instead of cutting the sheet into tiles and projecting each tile with its own symmetric camera, represent every tile as
 `(fov, c)` relative to the *sheet* image and project the whole generated sheet through all of them. Seams between views are then handled by the weights in `02`, and
-palette consistency comes from the generator seeing all views at once (Qwen-Image handles a wide 2048 px canvas).
+palette consistency comes from the generator seeing all views at once (assuming the generator accepts a canvas large enough for the sheet; to be checked for Qwen-Image at 2048 px).
 
 Extra: `FOV-compensated adjustment` (`UserCameras_MGR.StartFOV_compensatedAdjustment`, `CameraTools.Calc_PosOffset_forFOVchange`) moves the camera back/forward when FOV
 changes so the subject keeps its screen size (dolly-zoom compensation: `d2 = d1·tan(fov1/2)/tan(fov2/2)`). Useful for a view-planner UI that lets users trade perspective for coverage.
