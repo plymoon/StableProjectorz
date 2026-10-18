@@ -149,7 +149,7 @@ projects the look-at point and asserts it lands on `c`.
 
 Use in SPZ: each of up to 6 view cameras gets its own `(pos, rot, fov, c)`; a `CameraPovInfo` stores exactly these (`F/StableDiffusion/GenData/GenData2D_Archive.cs:150`).
 When rendering the **content image** that is sent to the generator, `UserCameras_MGR.RenderContentCameras` renders every active view into the *same* target (clear flags only for the first),
-so the views appear side by side in one sheet (`F/Camera/UserCameras_MGR.cs:308-335`). After generation, the projection uses the same POV list, so each view reads its own region.
+so the views appear side by side in one sheet (`F/Camera/UserCameras_MGR.cs:308-330`). After generation, the projection uses the same POV list, so each view reads its own region.
 **This is the cleanest answer to cross-view palette drift in the repo**: one sampling run, one palette, N views.
 
 `IDEA` for Overcast's context sheet: instead of cutting the sheet into tiles and projecting each tile with its own symmetric camera, represent every tile as
