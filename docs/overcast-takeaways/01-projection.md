@@ -81,7 +81,7 @@ Steps, in order (all in the one shader file plus the helper `ProjCam_HelpTexture
 The blurred depth-edge map (step "darkEdges") is produced in `PrepareDepth`:
 
 * `Depth_Contrast_Helper.Get_BlackWhiteDepth_POVs` renders linear depth (close = white, background = 0), then
-  `Improve_DepthContrast(ApplyExact, 3 iterations)` normalises it (see `07`).
+  `Improve_DepthContrast(ApplyExact)` normalises it (see `07`; the `overrideNumIters = 3` set by the caller only matters if a blur is requested, and none is).
 * `ScreenDepth_EdgesDetector.DetectEdges_ByDepth` (`F/TextureTools/EdgeDetect/EdgeDetect_ByDepth.compute`): for every non-background pixel, the maximum
   absolute depth difference over a 3×3 neighbourhood (a background neighbour counts as difference 1) is compared to a threshold
   `lerp(0.005, 0.1, edgesThresh01)`; the result is clamped to at least `1/255` so that the later blur can distinguish "inside silhouette, no edge" from "empty background".
