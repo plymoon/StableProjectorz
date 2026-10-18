@@ -40,7 +40,7 @@ or three.js. Keep the report as the written spec; do not paste repo code into Ov
 ## 2. Executive summary
 
 StableProjectorz (SPZ) is a Unity 6 desktop tool that textures meshes by projecting Stable-Diffusion images (via an external
-A1111/Forge/ComfyUI server) from "projector cameras". Roughly 700 C# files, 74 `.shader`, 27 `.compute`, 15 `.cginc`. Its
+A1111/Forge/ComfyUI server) from "projector cameras". The project's own code under `Assets/_gm` is about 306 C# files (~44 k lines), 60 `.shader`, 20 `.compute` and 11 `.cginc` files (the whole `Assets` tree, including vendored packages, has 698 / 74 / 27 / 15). Its
 engine is almost entirely **GPU render passes into UV-space texture arrays** (one array slice per UDIM tile). That makes it a good
 source of *algorithms*, but its *implementation* (geometry shaders, `SV_RenderTargetArrayIndex`, Unity camera depth) does not carry
 over to a numpy/OpenCV core. What carries over is the recipe for each pass.
